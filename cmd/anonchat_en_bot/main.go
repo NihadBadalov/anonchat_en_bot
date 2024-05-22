@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
 
@@ -145,13 +146,21 @@ func handler(additionalContext *context.Context) func(context.Context, *bot.Bot,
 			}
 			if update.Message.Photo != nil {
 				var medias []models.InputMedia
+				var usedMedias []string
 				for _, photo := range update.Message.Photo {
+					// Check if the photo already exists in usedMedias
+					if slices.Contains(usedMedias, photo.FileUniqueID[:len(photo.FileUniqueID)-1]) {
+						continue
+					}
+
 					medias = append(medias, &models.InputMediaPhoto{
 						Media:           photo.FileID,
 						HasSpoiler:      true,
 						Caption:         update.Message.Caption,
 						CaptionEntities: update.Message.CaptionEntities,
 					})
+
+					usedMedias = append(usedMedias, photo.FileUniqueID[:len(photo.FileUniqueID)-1])
 				}
 
 				b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
