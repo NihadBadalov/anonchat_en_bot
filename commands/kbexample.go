@@ -19,12 +19,12 @@ func (ce *CommandExecutor) ExecuteDayword(ctx context.Context, b *bot.Bot, updat
 	// typing /settings
 
 	btns := []utils.KeyboardButton{
-    {Name: "Grapes", Inline: true},
-    {Name: "Apples", Inline: true},
+		{Name: "Grapes", Inline: true},
+		{Name: "Apples", Inline: true},
 	}
-  choice := utils.UserKeyboard("Do you like:", btns, 10, ctx, b, update, additionalContext)
-  b.SendMessage(ctx, &bot.SendMessageParams{
-    ChatID: update.Message.Chat.ID,
-    Text: fmt.Sprintf("%s? Meh, sure...", choice),
-  })
+	choice := utils.UserKeyboard("Do you like:", btns, 10, ctx, b, update, additionalContext)
+	b.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   fmt.Sprintf("%s? Meh, sure...", choice),
+	})
 }

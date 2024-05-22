@@ -50,9 +50,9 @@ func isCommand(b *bot.Bot, ctx context.Context, ce *commands.CommandExecutor) fu
 		if len([]rune(update.Message.Text)) < 2 {
 			return false
 		}
-    if update.Message.Text[0] != '/' {
-      return false
-    }
+		if update.Message.Text[0] != '/' {
+			return false
+		}
 
 		cmdName := strings.Split(update.Message.Text, " ")[0]
 		executeFunctionName := "Execute" + strings.ToUpper(string(rune(cmdName[1]))) + cmdName[2:]
@@ -144,20 +144,20 @@ func handler(additionalContext *context.Context) func(context.Context, *bot.Bot,
 				return
 			}
 			if update.Message.Photo != nil {
-        var medias []models.InputMedia
-        for _, photo := range update.Message.Photo {
-          medias = append(medias, &models.InputMediaPhoto{
-            Media: photo.FileID,
-            HasSpoiler: true,
-            Caption: update.Message.Caption,
-            CaptionEntities: update.Message.CaptionEntities,
-          })
-        }
+				var medias []models.InputMedia
+				for _, photo := range update.Message.Photo {
+					medias = append(medias, &models.InputMediaPhoto{
+						Media:           photo.FileID,
+						HasSpoiler:      true,
+						Caption:         update.Message.Caption,
+						CaptionEntities: update.Message.CaptionEntities,
+					})
+				}
 
-        b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
-          ChatID: opposingUser,
-          Media: medias,
-        })
+				b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
+					ChatID: opposingUser,
+					Media:  medias,
+				})
 				return
 			}
 			if update.Message.Video != nil {

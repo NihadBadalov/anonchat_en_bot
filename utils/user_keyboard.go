@@ -88,7 +88,7 @@ func UserKeyboard(s string, btns []KeyboardButton, cooldown int64, ctx context.C
 
 	(*additionalContext).Value("user_keyboards").(*sync.Map).Store(update.Message.Chat.ID, nil)
 
-  val = val[4:]
+	val = val[4:]
 
 	// User response
 	if !success && val == "" {

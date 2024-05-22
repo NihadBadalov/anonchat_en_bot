@@ -6,7 +6,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
-  "anonchat_en_bot/utils"
+	"anonchat_en_bot/utils"
 )
 
 func (ce *CommandExecutor) ExecuteFind(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) {
@@ -21,5 +21,5 @@ func (ce *CommandExecutor) ExecuteFind(ctx context.Context, b *bot.Bot, update *
 		Text:   `✅️ Searching for a partner...`,
 	})
 
-  utils.MatchUsers(ctx, b, additionalContext)
+	utils.MatchUsers(ctx, b, additionalContext)
 }
