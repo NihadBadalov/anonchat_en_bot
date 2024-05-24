@@ -10,7 +10,7 @@ import (
 func (ce *CommandExecutor) ExecuteTerms(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) {
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text: `- anonchat_en_bot
+		Text: `- @AnonnCBot
 
 - For now, NO information AT ALL is collected.
 - Please, check Terms regurarly for updates.

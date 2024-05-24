@@ -10,7 +10,7 @@ import (
 func (ce *CommandExecutor) ExecuteRules(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) {
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text: `- anonchat_en_bot
+		Text: `- @AnonnCBot
 
 - Do not spam.
 - Do not send NSFW or pornographic content.

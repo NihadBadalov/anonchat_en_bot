@@ -18,6 +18,7 @@ Here are some commands you can use:`,
 
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text: `_Alternatively, use /help to show this message again._`,
+		Text: "_Alternatively, use /help to show this message again._",
+    ParseMode: "Markdown",
 	})
 }
