@@ -38,6 +38,7 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 		{Name: "✅ Yes", Inline: false},
 		{Name: "❌ No", Inline: false},
 	}
+	emptyButtons := []utils.KeyboardButton{}
 
 	choice, questionMessage := utils.UserKeyboard("Choose what settings you would like to change", mainMenuButtons, 60, ctx, b, update, additionalContext)
 	switch choice {
@@ -59,9 +60,10 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 		db.SetUserGender(int64(update.Message.ID), genderInt)
 
 		b.EditMessageText(ctx, &bot.EditMessageTextParams{
-			ChatID:    update.Message.Chat.ID,
-			MessageID: questionMessage.ID,
-			Text:      fmt.Sprintf("✅ Gender updated to %s", choice),
+			ChatID:      update.Message.Chat.ID,
+			MessageID:   questionMessage.ID,
+			Text:        fmt.Sprintf("✅ Gender updated to %s", choice),
+			ReplyMarkup: emptyButtons,
 		})
 
 	case "🎂 Age 🎂":
@@ -70,14 +72,16 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 			db.SetUserAge(int64(update.Message.ID), age)
 
 			b.EditMessageText(ctx, &bot.EditMessageTextParams{
-				ChatID:    update.Message.Chat.ID,
-				MessageID: questionMessage.ID,
-				Text:      fmt.Sprintf("✅ Age updated to %d", age),
+				ChatID:      update.Message.Chat.ID,
+				MessageID:   questionMessage.ID,
+				Text:        fmt.Sprintf("✅ Age updated to %d", age),
+				ReplyMarkup: emptyButtons,
 			})
 		} else {
 			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: update.Message.Chat.ID,
-				Text:   "❌ You have entered an invalid age. Please try again using /settings.",
+				ChatID:      update.Message.Chat.ID,
+				Text:        "❌ You have entered an invalid age. Please try again using /settings.",
+				ReplyMarkup: emptyButtons,
 			})
 
 			b.DeleteMessage(ctx, &bot.DeleteMessageParams{
@@ -93,9 +97,10 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 			db.SetUserGatekeepMedia(int64(update.Message.ID), true)
 
 			b.EditMessageText(ctx, &bot.EditMessageTextParams{
-				ChatID:    update.Message.Chat.ID,
-				MessageID: questionMessage.ID,
-				Text:      fmt.Sprintf(""),
+				ChatID:      update.Message.Chat.ID,
+				MessageID:   questionMessage.ID,
+				Text:        fmt.Sprintf(""),
+				ReplyMarkup: emptyButtons,
 			})
 		case "❌ No":
 			db.SetUserGatekeepMedia(int64(update.Message.ID), false)
