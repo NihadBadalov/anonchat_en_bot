@@ -14,7 +14,7 @@ type KeyboardButton struct {
 	Inline bool
 }
 
-func UserKeyboard(s string, btns []KeyboardButton, cooldown int64, ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) string {
+func UserKeyboard(s string, btns []KeyboardButton, cooldown int64, ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context, otherParams ...any) (string, *models.Message) {
 	kbButtons := [][]models.InlineKeyboardButton{}
 
 	var q = []models.InlineKeyboardButton{}
@@ -37,11 +37,35 @@ func UserKeyboard(s string, btns []KeyboardButton, cooldown int64, ctx context.C
 	kb := &models.InlineKeyboardMarkup{
 		InlineKeyboard: kbButtons,
 	}
-	b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
-		Text:        s,
-		ReplyMarkup: kb,
-	})
+  var existingMessage *models.Message
+  if len(otherParams) > 0 {
+    existingMessage = otherParams[0].(*models.Message)
+  }
+
+  var currentMessage *models.Message
+  if existingMessage != nil {
+    currMsg, msgErr := b.EditMessageText(ctx, &bot.EditMessageTextParams{
+      ChatID:      update.Message.Chat.ID,
+      MessageID:   existingMessage.ID,
+      Text:        s,
+      ReplyMarkup: kb,
+    })
+    currentMessage = currMsg
+    if msgErr != nil {
+      currentMessage, msgErr = b.SendMessage(ctx, &bot.SendMessageParams{
+        ChatID:      update.Message.Chat.ID,
+        Text:        s,
+        ReplyMarkup: kb,
+      })
+    }
+  } else {
+    currMsg, _ := b.SendMessage(ctx, &bot.SendMessageParams{
+      ChatID:      update.Message.Chat.ID,
+      Text:        s,
+      ReplyMarkup: kb,
+    })
+    currentMessage = currMsg
+  }
 
 	user_keyboard_timeout := &sync.Map{}
 	user_keyboard_timeout.Store("Value", nil)
@@ -98,5 +122,5 @@ func UserKeyboard(s string, btns []KeyboardButton, cooldown int64, ctx context.C
 		})
 	}
 
-	return val
+	return val, currentMessage
 }
