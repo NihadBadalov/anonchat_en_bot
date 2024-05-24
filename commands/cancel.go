@@ -59,6 +59,12 @@ func (ce *CommandExecutor) ExecuteCancel(ctx context.Context, b *bot.Bot, update
 				ChatID: opposingUser,
 				Text:   `❌️ Chat canceled by partner.`,
 			})
-		}
+		} else {
+      // The user was not in the queue
+      b.SendMessage(ctx, &bot.SendMessageParams{
+        ChatID: update.Message.Chat.ID,
+        Text:   `❌️ You are not in the queue or have a partner. Nothing to cancel.`,
+      })
+    }
 	}
 }
