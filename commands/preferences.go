@@ -11,7 +11,7 @@ import (
 	"github.com/go-telegram/bot/models"
 )
 
-func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) {
+func (ce *CommandExecutor) ExecutePreferences(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) {
 	user, err := db.GetUserByUid(update.Message.Chat.ID)
 	if user.Id == 0 || err != nil {
 		db.AddUser(update.Message.Chat.ID, -1, -1, true)
