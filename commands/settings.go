@@ -38,12 +38,11 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 		{Name: "✅ Yes", Inline: false},
 		{Name: "❌ No", Inline: false},
 	}
-	emptyButtons := []utils.KeyboardButton{}
 
 	choice, questionMessage := utils.UserKeyboard("Choose what settings you would like to change", mainMenuButtons, 60, ctx, b, update, additionalContext)
 	switch choice {
 	case "🚻 Gender 🚻":
-		gender, _ := utils.UserKeyboard("Choose your gender", genderButtons, 60, ctx, b, update, additionalContext, questionMessage)
+		gender, genderQuestionMessage := utils.UserKeyboard("Choose your gender", genderButtons, 60, ctx, b, update, additionalContext, questionMessage)
 
 		var genderInt int
 		switch gender {
@@ -59,29 +58,35 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 
 		db.SetUserGender(int64(update.Message.ID), genderInt)
 
-		b.EditMessageText(ctx, &bot.EditMessageTextParams{
-			ChatID:      update.Message.Chat.ID,
-			MessageID:   questionMessage.ID,
-			Text:        fmt.Sprintf("✅ Gender updated to %s", choice),
-			ReplyMarkup: emptyButtons,
-		})
+		if genderInt != -1 {
+      b.DeleteMessage(ctx, &bot.DeleteMessageParams{
+        ChatID:   update.Message.Chat.ID,
+        MessageID: genderQuestionMessage.ID,
+      })
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID:    update.Message.Chat.ID,
+				Text:      fmt.Sprintf("✅ Gender updated to %s", gender),
+			})
+		}
 
 	case "🎂 Age 🎂":
 		age, e := strconv.Atoi(utils.UserInput("Enter your age. You have to be at least 16 years old. Write -1 to cancel.", 60, ctx, b, update, additionalContext))
 		if e == nil && age == -1 || (16 <= age && age <= 200) {
 			db.SetUserAge(int64(update.Message.ID), age)
 
-			b.EditMessageText(ctx, &bot.EditMessageTextParams{
-				ChatID:      update.Message.Chat.ID,
+      b.DeleteMessage(ctx, &bot.DeleteMessageParams{
+        ChatID:   update.Message.Chat.ID,
 				MessageID:   questionMessage.ID,
+      })
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID:    update.Message.Chat.ID,
 				Text:        fmt.Sprintf("✅ Age updated to %d", age),
-				ReplyMarkup: emptyButtons,
 			})
 		} else {
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID:      update.Message.Chat.ID,
 				Text:        "❌ You have entered an invalid age. Please try again using /settings.",
-				ReplyMarkup: emptyButtons,
+				ReplyMarkup: nil,
 			})
 
 			b.DeleteMessage(ctx, &bot.DeleteMessageParams{
@@ -100,7 +105,7 @@ func (ce *CommandExecutor) ExecuteSettings(ctx context.Context, b *bot.Bot, upda
 				ChatID:      update.Message.Chat.ID,
 				MessageID:   questionMessage.ID,
 				Text:        fmt.Sprintf(""),
-				ReplyMarkup: emptyButtons,
+				ReplyMarkup: nil,
 			})
 		case "❌ No":
 			db.SetUserGatekeepMedia(int64(update.Message.ID), false)
