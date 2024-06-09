@@ -121,11 +121,26 @@ func keyboardHandler(additionalContext *context.Context) func(ctx context.Contex
 func handler(additionalContext *context.Context) func(context.Context, *bot.Bot, *models.Update) {
 	return func(ctx context.Context, b *bot.Bot, update *models.Update) {
 		// Handler for other messages that are NOT commands
-		if val, ok := (*additionalContext).Value("user_inputs").(*sync.Map).Load(update.Message.Chat.ID); ok && val != nil {
-			v, success := (*additionalContext).Value("user_inputs").(*sync.Map).Load(update.Message.Chat.ID)
-			if success {
-				v.(*sync.Map).Store("Value", update.Message.Text)
-				return
+		/* if additionalContext != nil {
+		   if val, ok := (*additionalContext).Value("user_inputs").(*sync.Map).Load(update.Message.Chat.ID); ok && val != nil {
+		     v, success := (*additionalContext).Value("user_inputs").(*sync.Map).Load(update.Message.Chat.ID)
+		     if success {
+		       v.(*sync.Map).Store("Value", update.Message.Text)
+		       return
+		     }
+		   }
+		 } */
+		if additionalContext != nil {
+			if userInputs, ok := (*additionalContext).Value("user_inputs").(*sync.Map); ok && userInputs != nil {
+				if val, ok := userInputs.Load(update.Message.Chat.ID); ok && val != nil {
+					v, success := userInputs.Load(update.Message.Chat.ID)
+					if success {
+						if mapValue, ok := v.(*sync.Map); ok {
+							mapValue.Store("Value", update.Message.Text)
+							return
+						}
+					}
+				}
 			}
 		}
 
