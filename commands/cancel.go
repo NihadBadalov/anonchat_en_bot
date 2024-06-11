@@ -19,7 +19,7 @@ func removeFromSlice(slice []int64, id int64) ([]int64, bool) {
 	return slice, false
 }
 
-func (ce *CommandExecutor) ExecuteCancel(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) {
+func (ce *CommandExecutor) ExecuteCancel(ctx context.Context, b *bot.Bot, update *models.Update, additionalContext *context.Context) bool {
 	newUsersQueued, found := removeFromSlice((*additionalContext).Value("users_queued").([]int64), update.Message.Chat.ID)
 
 	if found {
@@ -36,6 +36,7 @@ func (ce *CommandExecutor) ExecuteCancel(ctx context.Context, b *bot.Bot, update
 		})
 
 		utils.MatchUsers(ctx, b, additionalContext)
+    return true
 	} else {
 		if chatObj, ok := (*additionalContext).Value("user_chats").(*sync.Map).Load(update.Message.Chat.ID); ok && chatObj != nil {
 			u1, ok1 := chatObj.(*sync.Map).Load("u1")
@@ -63,6 +64,7 @@ You can find a new partner by typing /find.
 You can find a new partner by typing /find.
 `,
 			})
+      return true
 		} else {
       // The user was not in the queue
       b.SendMessage(ctx, &bot.SendMessageParams{
@@ -71,6 +73,7 @@ You can find a new partner by typing /find.
 You can find a partner by typing /find.
 `,
       })
+      return false
     }
 	}
 }
