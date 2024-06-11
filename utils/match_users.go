@@ -8,6 +8,13 @@ import (
 	"github.com/go-telegram/bot"
 )
 
+const matchMessage = `🎉 You have been matched with a partner!
+
+/next - find a new partner
+/stop - stop this chat
+
+@AnonnCBot`
+
 func MatchUsers(
 	ctx context.Context,
 	b *bot.Bot,
@@ -38,11 +45,11 @@ func MatchUsers(
 	// Send a message to the two users
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: user1,
-		Text:   `🎉 You have been matched with a partner!`,
+		Text:   matchMessage,
 	})
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: user2,
-		Text:   `🎉 You have been matched with a partner!`,
+		Text:   matchMessage,
 	})
 
 	// Add the two users to the matched users list
