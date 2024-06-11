@@ -14,6 +14,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/assert"
 
 	"anonchat_en_bot/commands"
 )
@@ -119,6 +120,7 @@ func keyboardHandler(additionalContext *context.Context) func(ctx context.Contex
 }
 
 func handler(additionalContext *context.Context) func(context.Context, *bot.Bot, *models.Update) {
+  assert := assert.New(nil)
 	return func(ctx context.Context, b *bot.Bot, update *models.Update) {
 		// Handler for other messages that are NOT commands
 		/* if additionalContext != nil {
@@ -130,12 +132,16 @@ func handler(additionalContext *context.Context) func(context.Context, *bot.Bot,
 		     }
 		   }
 		 } */
-		if additionalContext != nil {
+		if additionalContext != nil && update != nil && update.Message != nil {
 			if userInputs, ok := (*additionalContext).Value("user_inputs").(*sync.Map); ok && userInputs != nil {
 				if val, ok := userInputs.Load(update.Message.Chat.ID); ok && val != nil {
 					v, success := userInputs.Load(update.Message.Chat.ID)
-					if success {
+					if success && v != nil {
 						if mapValue, ok := v.(*sync.Map); ok {
+							assert.NotEqual(mapValue, nil)
+							assert.NotEqual(update, nil)
+							assert.NotEqual(update.Message, nil)
+
 							mapValue.Store("Value", update.Message.Text)
 							return
 						}
