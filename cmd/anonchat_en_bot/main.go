@@ -120,7 +120,7 @@ func keyboardHandler(additionalContext *context.Context) func(ctx context.Contex
 }
 
 func handler(additionalContext *context.Context) func(context.Context, *bot.Bot, *models.Update) {
-  assert := assert.New(nil)
+	assert := assert.New(nil)
 	return func(ctx context.Context, b *bot.Bot, update *models.Update) {
 		// Handler for other messages that are NOT commands
 		/* if additionalContext != nil {
@@ -132,101 +132,103 @@ func handler(additionalContext *context.Context) func(context.Context, *bot.Bot,
 		     }
 		   }
 		 } */
-		if additionalContext != nil && update != nil && update.Message != nil {
-			if userInputs, ok := (*additionalContext).Value("user_inputs").(*sync.Map); ok && userInputs != nil {
-				if val, ok := userInputs.Load(update.Message.Chat.ID); ok && val != nil {
-					v, success := userInputs.Load(update.Message.Chat.ID)
-					if success && v != nil {
-						if mapValue, ok := v.(*sync.Map); ok {
-							assert.NotEqual(mapValue, nil)
-							assert.NotEqual(update, nil)
-							assert.NotEqual(update.Message, nil)
+		if update != nil && update.Message != nil {
+			if additionalContext != nil {
+				if userInputs, ok := (*additionalContext).Value("user_inputs").(*sync.Map); ok && userInputs != nil {
+					if val, ok := userInputs.Load(update.Message.Chat.ID); ok && val != nil {
+						v, success := userInputs.Load(update.Message.Chat.ID)
+						if success && v != nil {
+							if mapValue, ok := v.(*sync.Map); ok {
+								assert.NotEqual(mapValue, nil)
+								assert.NotEqual(update, nil)
+								assert.NotEqual(update.Message, nil)
 
-							mapValue.Store("Value", update.Message.Text)
-							return
+								mapValue.Store("Value", update.Message.Text)
+								return
+							}
 						}
 					}
 				}
 			}
-		}
 
-		// If the user is talking to a partner
-		if val, ok := (*additionalContext).Value("user_chats").(*sync.Map).Load(update.Message.Chat.ID); ok && val != nil {
-			u1, ok1 := val.(*sync.Map).Load("u1")
-			u2, ok2 := val.(*sync.Map).Load("u2")
-			var opposingUser int64
-			if ok1 && u1 != nil && u1.(int64) == update.Message.Chat.ID && ok2 && u2 != nil {
-				opposingUser = u2.(int64)
-			} else {
-				opposingUser = u1.(int64)
-			}
-
-			// Handle sending the message
-			// It's a sticker
-			if update.Message.Sticker != nil {
-				b.SendSticker(ctx, &bot.SendStickerParams{
-					ChatID: opposingUser,
-					Sticker: &models.InputFileString{
-						Data: update.Message.Sticker.FileID,
-					},
-				})
-				return
-			}
-			if update.Message.Photo != nil {
-				var medias []models.InputMedia
-				var usedMedias []string
-				for _, photo := range update.Message.Photo {
-					// Check if the photo already exists in usedMedias
-					if slices.Contains(usedMedias, photo.FileUniqueID[:len(photo.FileUniqueID)-1]) {
-						continue
-					}
-
-					medias = append(medias, &models.InputMediaPhoto{
-						Media:           photo.FileID,
-						HasSpoiler:      true,
-						Caption:         update.Message.Caption,
-						CaptionEntities: update.Message.CaptionEntities,
-					})
-
-					usedMedias = append(usedMedias, photo.FileUniqueID[:len(photo.FileUniqueID)-1])
+			// If the user is talking to a partner
+			if val, ok := (*additionalContext).Value("user_chats").(*sync.Map).Load(update.Message.Chat.ID); ok && val != nil {
+				u1, ok1 := val.(*sync.Map).Load("u1")
+				u2, ok2 := val.(*sync.Map).Load("u2")
+				var opposingUser int64
+				if ok1 && u1 != nil && u1.(int64) == update.Message.Chat.ID && ok2 && u2 != nil {
+					opposingUser = u2.(int64)
+				} else {
+					opposingUser = u1.(int64)
 				}
 
-				b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
-					ChatID: opposingUser,
-					Media:  medias,
-				})
-				return
-			}
-			if update.Message.Video != nil {
-				b.SendMessage(ctx, &bot.SendMessageParams{
-					ChatID: update.Message.Chat.ID,
-					Text:   "Videos are not supported",
-				})
-				return
-			}
-			if update.Message.Voice != nil {
-				b.SendVoice(ctx, &bot.SendVoiceParams{
-					ChatID: opposingUser,
-					Voice: &models.InputFileString{
-						Data: update.Message.Voice.FileID,
-					},
-				})
-				return
-			}
-			if update.Message.Animation != nil {
-				b.SendAnimation(ctx, &bot.SendAnimationParams{
-					ChatID: opposingUser,
-					Animation: &models.InputFileString{
-						Data: update.Message.Animation.FileID,
-					},
-				})
-			}
-			if update.Message.Text != "" {
-				b.SendMessage(ctx, &bot.SendMessageParams{
-					ChatID: opposingUser,
-					Text:   update.Message.Text,
-				})
-				return
+				// Handle sending the message
+				// It's a sticker
+				if update.Message.Sticker != nil {
+					b.SendSticker(ctx, &bot.SendStickerParams{
+						ChatID: opposingUser,
+						Sticker: &models.InputFileString{
+							Data: update.Message.Sticker.FileID,
+						},
+					})
+					return
+				}
+				if update.Message.Photo != nil {
+					var medias []models.InputMedia
+					var usedMedias []string
+					for _, photo := range update.Message.Photo {
+						// Check if the photo already exists in usedMedias
+						if slices.Contains(usedMedias, photo.FileUniqueID[:len(photo.FileUniqueID)-1]) {
+							continue
+						}
+
+						medias = append(medias, &models.InputMediaPhoto{
+							Media:           photo.FileID,
+							HasSpoiler:      true,
+							Caption:         update.Message.Caption,
+							CaptionEntities: update.Message.CaptionEntities,
+						})
+
+						usedMedias = append(usedMedias, photo.FileUniqueID[:len(photo.FileUniqueID)-1])
+					}
+
+					b.SendMediaGroup(ctx, &bot.SendMediaGroupParams{
+						ChatID: opposingUser,
+						Media:  medias,
+					})
+					return
+				}
+				if update.Message.Video != nil {
+					b.SendMessage(ctx, &bot.SendMessageParams{
+						ChatID: update.Message.Chat.ID,
+						Text:   "Videos are not supported",
+					})
+					return
+				}
+				if update.Message.Voice != nil {
+					b.SendVoice(ctx, &bot.SendVoiceParams{
+						ChatID: opposingUser,
+						Voice: &models.InputFileString{
+							Data: update.Message.Voice.FileID,
+						},
+					})
+					return
+				}
+				if update.Message.Animation != nil {
+					b.SendAnimation(ctx, &bot.SendAnimationParams{
+						ChatID: opposingUser,
+						Animation: &models.InputFileString{
+							Data: update.Message.Animation.FileID,
+						},
+					})
+				}
+				if update.Message.Text != "" {
+					b.SendMessage(ctx, &bot.SendMessageParams{
+						ChatID: opposingUser,
+						Text:   update.Message.Text,
+					})
+					return
+				}
 			}
 		}
 	}
